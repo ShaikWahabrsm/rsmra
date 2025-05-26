@@ -30,7 +30,7 @@ jobs:
       - name: Push changes to test_deployment branch
         shell: bash
         run: |
-          git config user.name "Upendra"
+          git config user.name "upendrasinghrsm"
           git config user.email "Upendra.Singh@rsmpf.onmicrosoft.com"
           git add .
 

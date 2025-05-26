@@ -30,8 +30,8 @@ jobs:
       - name: Push changes to repo
         shell: bash
         run: |
-          git config user.name "upendrasinghrsm"
-          git config user.email "upendrasinghrsm@github.com"
+          git config user.name "Upendra"
+          git config user.email "Upendra.Singh@rsmpf.onmicrosoft.com"
           git add .
           
           if git diff --cached --quiet; then

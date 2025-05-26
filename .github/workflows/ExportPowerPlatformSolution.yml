@@ -13,7 +13,10 @@ jobs:
       - name: Set up Power Platform CLI
         run: |
           dotnet tool install --global Microsoft.PowerApps.CLI.Tool
-          refreshenv
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Verify PAC CLI
+        run: pac help
 
       - name: Authenticate with Power Platform
         run: |

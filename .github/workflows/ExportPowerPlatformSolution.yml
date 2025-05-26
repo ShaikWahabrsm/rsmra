@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           git config user.name "upendrasinghrsm"
-          git config user.email "Upendra.Singh@rsmpf.onmicrosoft.com"
+          git config user.email "upendrasinghrsm@github.com"
           git add .
 
           if git diff --cached --quiet; then

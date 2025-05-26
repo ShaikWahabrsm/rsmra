@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy:
+  export-solution:
     runs-on: windows-latest
 
     env:
@@ -17,52 +17,33 @@ jobs:
       TARGET_ENVIRONMENT_URL: https://org3cd22ca1.crm.dynamics.com
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3.6.0
-      
-    - name: Download PAC CLI Installer
-      shell: pwsh
-      run: |
-        Invoke-WebRequest -Uri https://aka.ms/PowerAppsCLI -OutFile pac.msi
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Install PAC CLI
-      shell: pwsh
-      run: |
-        Start-Process msiexec.exe -ArgumentList '/i pac.msi /quiet /norestart' -Wait
+      - name: Set up Power Platform CLI
+        run: |
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
 
-    - name: Add PAC CLI to PATH
-      shell: pwsh
-      run: |
-        $pacPath = "C:\Program Files (x86)\Microsoft Power Platform CLI"
-        echo "Adding PAC CLI to PATH: $pacPath"
-        echo "$pacPath" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+      - name: Verify PAC CLI
+        run: pac help
 
-    - name: Verify PAC CLI is available
-      shell: pwsh
-      run: |
-        pac --version
+      - name: Authenticate with Power Platform
+        run: |
+          pac auth create --applicationId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }} --environment ${{ env.TARGET_ENVIRONMENT_URL }}
 
-    - name: Pack Solution (Managed)
-      shell: pwsh
-      run: |
-        mkdir $env:PACKED_OUTPUT
-        pac solution pack `
-          --path "$env:SOLUTION_PATH" `
-          --packagetype Managed `
-          --outputDirectory "$env:PACKED_OUTPUT"
+      - name: Pack Solution (Managed)
+        shell: pwsh
+        run: |
+          mkdir $env:PACKED_OUTPUT -Force
+          $zipFilePath = Join-Path $env:PACKED_OUTPUT $env:ZIP_NAME
+          pac solution pack `
+            --zipfile "$zipFilePath" `
+            --folder "$env:SOLUTION_PATH" `
+            --packagetype Managed
 
-    - name: Authenticate to Target Environment
-      shell: pwsh
-      run: |
-        pac auth clear
-        pac auth create `
-          --clientId "${{ secrets.CLIENT_ID }}" `
-          --clientSecret "${{ secrets.CLIENT_SECRET }}" `
-          --tenant "${{ secrets.TENANT_ID }}" `
-          --url "$env:TARGET_ENVIRONMENT_URL"
-
-    - name: Import Solution
-      shell: pwsh
-      run: |
-        pac solution import `
-          --path "$env:PACKED_OUTPUT\\$env:ZIP_NAME"
+      - name: Import Solution
+        shell: pwsh
+        run: |
+          pac solution import `
+            --path "$env:PACKED_OUTPUT\\$env:ZIP_NAME"

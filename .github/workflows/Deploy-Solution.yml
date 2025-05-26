@@ -11,7 +11,7 @@ jobs:
 
     env:
       SOLUTION_NAME: CostcoDev
-      SOLUTION_PATH: Solution/CostcoDev
+      SOLUTION_PATH: Solutions/CostcoDev
       PACKED_OUTPUT: packed
       ZIP_NAME: CostcoDev_managed.zip
       TARGET_ENVIRONMENT_URL: https://org3cd22ca1.crm.dynamics.com

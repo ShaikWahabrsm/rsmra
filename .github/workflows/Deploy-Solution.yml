@@ -29,8 +29,12 @@ jobs:
         Start-Process msiexec.exe -ArgumentList '/i pac.msi /quiet /norestart' -Wait
 
     - name: Add PAC CLI to PATH
+      shell: pwsh
       run: |
-        echo "C:\Program Files (x86)\Microsoft Power Platform CLI" >> $env:GITHUB_PATH
+        $pacPath = "C:\Program Files (x86)\Microsoft Power Platform CLI"
+        echo "Adding PAC CLI to PATH: $pacPath"
+        echo "$pacPath" | Out-File -Append -Encoding ascii $env:GITHUB_PATH
+
 
     - name: Pack Solution (Managed)
       run: |

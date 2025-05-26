@@ -1,0 +1,33 @@
+name: Export Power Platform Solution
+
+on:
+  workflow_dispatch:
+
+jobs:
+  export-solution:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Power Platform CLI
+        run: |
+          dotnet tool install --global Microsoft.PowerApps.CLI.Tool
+          refreshenv
+
+      - name: Authenticate with Power Platform
+        run: |
+          pac auth create --clientId ${{ secrets.CLIENT_ID }} --clientSecret ${{ secrets.CLIENT_SECRET }} --tenant ${{ secrets.TENANT_ID }} --url https://rsmradev.crm.dynamics.com
+
+      - name: Export and unpack solution
+        run: |
+          pac solution export --name CostcoDev --path CostcoDev.zip --managed false
+          pac solution unpack --zipfile CostcoDev.zip --folder unpacked --packagetype Unmanaged
+
+      - name: Commit to Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Exported solution on $(date)"
+          git push
